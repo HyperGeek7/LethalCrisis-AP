@@ -164,7 +164,6 @@ function do_ap_transmission(msg)
 
     AP_TCP:setStream(JSON.encode(msg) .. "\n")
     AP_TCP:send()
-    AP_TCP:setBlockMode(1)
     AP_TCP:recv()
     local recv_msg = AP_TCP:getCache()
     if string.len(recv_msg) == 0 then

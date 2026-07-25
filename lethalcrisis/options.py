@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from Options import PerGameCommonOptions, Toggle
 
+
 class ShuffleStartingEquipment(Toggle):
     """
     Start with a random Blade, Assault, Shot, and Charge
@@ -9,6 +10,7 @@ class ShuffleStartingEquipment(Toggle):
 
     display_name = "Shuffle Starting Equipment"
     default = Toggle.option_false
+
 
 class ExcludeStage14BARank(Toggle):
     """
@@ -21,6 +23,7 @@ class ExcludeStage14BARank(Toggle):
     # but since I'm not really anticipating anyone else playing this
     # world, I'm adding an option to kick this stage out. So there.
     display_name = "Exclude Stage 14B's A Rank"
+
 
 @dataclass
 class LethalCrisisOptions(PerGameCommonOptions):

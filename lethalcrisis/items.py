@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from enum import IntEnum
-from typing import NamedTuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from BaseClasses import Item, ItemClassification
+
 from . import names
 
 if TYPE_CHECKING:
@@ -10,6 +12,7 @@ if TYPE_CHECKING:
 
 # 16751, Clarino's height and weight
 LC_ITEM_BASE = 167511000
+
 
 class ApplicationType(IntEnum):
     BLADE = 0
@@ -26,6 +29,7 @@ class ItemData(NamedTuple):
     category: ApplicationType
     classification: ItemClassification
 
+
 # The temptation to mark some applications as filler is strong,
 # but I'm not going to pretend I'm the world's best LC player or know
 # what's genuinely good and what isn't.
@@ -38,14 +42,14 @@ blades = {
     names.ghost_fluerette: ItemData(4, ApplicationType.BLADE, ItemClassification.progression),
     names.whirlpool: ItemData(5, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.yo_yo: ItemData(6, ApplicationType.BLADE, GENERAL_APPLICATION),
-    #names.tack_rush: ItemData(7, ApplicationType.BLADE, GENERAL_APPLICATION),
+    # names.tack_rush: ItemData(7, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.altrise: ItemData(8, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.headhunt: ItemData(9, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.smash: ItemData(10, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.eintraf: ItemData(12, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.zweitraf: ItemData(13, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.dreitraf: ItemData(14, ApplicationType.BLADE, GENERAL_APPLICATION),
-    #names.trafia: ItemData(15, ApplicationType.BLADE, GENERAL_APPLICATION),
+    # names.trafia: ItemData(15, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.whipper: ItemData(17, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.nettle: ItemData(18, ApplicationType.BLADE, GENERAL_APPLICATION),
     names.spike: ItemData(20, ApplicationType.BLADE, ItemClassification.progression),
@@ -57,12 +61,12 @@ blades = {
 
 assaults = {
     names.step_arrow: ItemData(41, ApplicationType.ASSAULT, GENERAL_APPLICATION),
-    names.aura_assault: ItemData(42, ApplicationType.ASSAULT, GENERAL_APPLICATION),
-    names.junk_ball: ItemData(43, ApplicationType.ASSAULT, GENERAL_APPLICATION),
+    names.aura_assault: ItemData(42, ApplicationType.ASSAULT, ItemClassification.progression_deprioritized_skip_balancing),
+    names.junk_ball: ItemData(43, ApplicationType.ASSAULT, ItemClassification.progression_deprioritized_skip_balancing),
     names.pressure: ItemData(44, ApplicationType.ASSAULT, GENERAL_APPLICATION),
-    names.sharpness: ItemData(50, ApplicationType.ASSAULT, GENERAL_APPLICATION),
+    names.sharpness: ItemData(50, ApplicationType.ASSAULT, ItemClassification.progression_deprioritized_skip_balancing),
     names.kamikaze: ItemData(52, ApplicationType.ASSAULT, GENERAL_APPLICATION),
-    names.silpheed: ItemData(55, ApplicationType.ASSAULT, GENERAL_APPLICATION),
+    names.silpheed: ItemData(55, ApplicationType.ASSAULT, ItemClassification.progression_deprioritized_skip_balancing),
     names.biting: ItemData(60, ApplicationType.ASSAULT, GENERAL_APPLICATION),
     names.vjorum: ItemData(70, ApplicationType.ASSAULT, GENERAL_APPLICATION),
 }
@@ -94,10 +98,10 @@ shots = {
 charges = {
     names.lock_shot: ItemData(121, ApplicationType.CHARGE, GENERAL_APPLICATION),
     names.lightning: ItemData(122, ApplicationType.CHARGE, GENERAL_APPLICATION),
-    names.nova: ItemData(123, ApplicationType.CHARGE, GENERAL_APPLICATION),
+    names.nova: ItemData(123, ApplicationType.CHARGE, ItemClassification.progression_deprioritized_skip_balancing),
     names.solomon: ItemData(130, ApplicationType.CHARGE, GENERAL_APPLICATION),
     names.howling: ItemData(135, ApplicationType.CHARGE, GENERAL_APPLICATION),
-    names.stgb: ItemData(140, ApplicationType.CHARGE, GENERAL_APPLICATION),
+    names.stgb: ItemData(140, ApplicationType.CHARGE, ItemClassification.progression_deprioritized_skip_balancing),
 }
 
 customs = {
@@ -125,10 +129,16 @@ customs = {
 stat_ups = {
     names.small_life: ItemData(-1, ApplicationType.STAT_UPS, ItemClassification.filler),
     names.med_life: ItemData(-2, ApplicationType.STAT_UPS, ItemClassification.progression_deprioritized_skip_balancing),
-    names.large_life: ItemData(-3, ApplicationType.STAT_UPS, ItemClassification.progression_deprioritized_skip_balancing),
+    names.large_life: ItemData(
+        -3, ApplicationType.STAT_UPS, ItemClassification.progression_deprioritized_skip_balancing
+    ),
     names.small_energy: ItemData(-11, ApplicationType.STAT_UPS, ItemClassification.filler),
-    names.med_energy: ItemData(-12, ApplicationType.STAT_UPS, ItemClassification.progression_deprioritized_skip_balancing),
-    names.large_energy: ItemData(-13, ApplicationType.STAT_UPS, ItemClassification.progression_deprioritized_skip_balancing),
+    names.med_energy: ItemData(
+        -12, ApplicationType.STAT_UPS, ItemClassification.progression_deprioritized_skip_balancing
+    ),
+    names.large_energy: ItemData(
+        -13, ApplicationType.STAT_UPS, ItemClassification.progression_deprioritized_skip_balancing
+    ),
 }
 
 # Stage unlocks are...weird. The game keeps track of which stages you have access to via a simple integer counter.
@@ -142,26 +152,24 @@ stat_ups = {
 # fun/cursed option to just let -21 and -22 increment your stage access regardless of where they are.
 stage_unlocks = {
     names.unlock_7b: ItemData(-21, ApplicationType.STAGE_UNLOCKS, ItemClassification.progression_skip_balancing),
-    names.unlock_10b: ItemData(-22, ApplicationType.STAGE_UNLOCKS, ItemClassification.progression_skip_balancing)
+    names.unlock_10b: ItemData(-22, ApplicationType.STAGE_UNLOCKS, ItemClassification.progression_skip_balancing),
 }
 
 all_items = blades | assaults | shots | charges | customs | stat_ups | stage_unlocks
 
-ITEM_NAME_TO_ID: dict[str, int] = {
-    k: v.code + LC_ITEM_BASE for k, v in all_items.items()
-}
+ITEM_NAME_TO_ID: dict[str, int] = {k: v.code + LC_ITEM_BASE for k, v in all_items.items()}
+
 
 def get_random_filler_item_name(world: LethalCrisisWorld):
     # There's potential for traps in this world,
     # but for now, let's just pick a helpful filler at random.
-    return world.random.choice([
-        names.small_energy,
-        names.small_life
-    ])
+    return world.random.choice([names.small_energy, names.small_life])
+
 
 def create_item_with_correct_classification(world: LethalCrisisWorld, name: str):
     item = all_items[name]
     return LethalCrisisItem(name, item.classification, item.code + LC_ITEM_BASE, world.player)
+
 
 def create_all_items(world: LethalCrisisWorld, starting_gear: list[str]):
     # Stat items are the only ones that can duplicate, so we'll handle them in a moment.
@@ -175,7 +183,7 @@ def create_all_items(world: LethalCrisisWorld, starting_gear: list[str]):
         names.large_life: 11,
         names.small_energy: 3,
         names.med_energy: 13,
-        names.large_energy: 11
+        names.large_energy: 11,
     }
 
     # Yes, this could be a single list comprehension.
@@ -184,12 +192,13 @@ def create_all_items(world: LethalCrisisWorld, starting_gear: list[str]):
     # hurt my brain.
     for name, count in stat_up_counts.items():
         itempool += [world.create_item(name) for _ in range(count)]
-    
+
     # Just in case...
     empty_count = len(world.multiworld.get_unfilled_locations(world.player)) - len(itempool)
     itempool += [world.create_filler() for _ in range(empty_count)]
 
     world.multiworld.itempool += itempool
+
 
 class LethalCrisisItem(Item):
     game = "Lethal Crisis"

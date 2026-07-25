@@ -1,3 +1,2 @@
-from .world import LethalCrisisWorld
-
 from . import components as components
+from .world import LethalCrisisWorld

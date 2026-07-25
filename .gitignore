@@ -1,2 +1,3 @@
 pack_files
-**/__pycache__/**
+**/__pycache__
+lc-ap_patcher/target/**

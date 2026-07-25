@@ -14,8 +14,10 @@ LC_LOC_BASE = 167512000
 
 LOCATION_NAME_TO_ID: dict[str, int] = {}
 
+
 def rank_location_name(stage: str | int, rank: str):
     return f"Stage {stage} Rank {rank}"
+
 
 # May as well use the same codes LC uses internally.
 # These are always in the form (stage_code * 10) + [1-5] for ranks [S-D].
@@ -48,12 +50,15 @@ for i in range(18, 26):
 class LethalCrisisLocation(Location):
     game = "Lethal Crisis"
 
+
 class ExcludedLethalCrisisLocation(LethalCrisisLocation):
     progress_type = LocationProgressType.EXCLUDED
+
 
 def create_all_locations(world: LethalCrisisWorld) -> None:
     create_regular_locations(world)
     create_events(world)
+
 
 # Thanks, APQuest!
 def get_location_names_with_ids(location_names: list[str]) -> dict[str, int | None]:
@@ -71,8 +76,12 @@ def create_regular_locations(world: LethalCrisisWorld) -> None:
         excluded_location = rank_location_name("14B", "A")
         excluded_locations.append(excluded_location)
         world.get_region("Stage 14B").add_locations(
-            get_location_names_with_ids([excluded_location, ]),
-            ExcludedLethalCrisisLocation
+            get_location_names_with_ids(
+                [
+                    excluded_location,
+                ]
+            ),
+            ExcludedLethalCrisisLocation,
         )
 
     for stage in stage_nums:
@@ -88,6 +97,7 @@ def create_regular_locations(world: LethalCrisisWorld) -> None:
         normal_locations = [location for location in stage_locations if location not in excluded_locations]
         stage_region.add_locations(get_location_names_with_ids(normal_locations), LethalCrisisLocation)
 
+
 def create_events(world: LethalCrisisWorld):
     stage_nums = [f"Stage {i}" for i in range(1, 17)] + [f"Stage {i}B" for i in range(10, 18)]
     for stage_num in stage_nums:
@@ -95,15 +105,15 @@ def create_events(world: LethalCrisisWorld):
         # so add an event to track each of these. Also add one for 17B anyways because that's how
         # you clear the game, and one for 16 because that's a prerequisite to opening the B stages.
         stage_region = world.get_region(stage_num)
-        stage_region.add_event(f"{stage_num}-D Clear", location_type = LethalCrisisLocation, item_type = LethalCrisisItem)
+        stage_region.add_event(f"{stage_num}-D Clear", location_type=LethalCrisisLocation, item_type=LethalCrisisItem)
 
     # The first 8 stages must also have their C ranks cleared to unlock stage 9.
 
-    for i in range(1,9):
+    for i in range(1, 9):
         stage_num = f"Stage {i}"
         stage_region = world.get_region(stage_num)
-        stage_region.add_event(f"{stage_num}-C Clear", location_type = LethalCrisisLocation, item_type = LethalCrisisItem)
-    
+        stage_region.add_event(f"{stage_num}-C Clear", location_type=LethalCrisisLocation, item_type=LethalCrisisItem)
+
     # The below is true in "normal" play, but I'm going to shuffle the unlock items in the first pass,
     # so 7-S and 9-S are no longer magic.
     """

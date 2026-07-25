@@ -4,14 +4,14 @@ strider = "Strider"
 ghost_fluerette = "Ghost Fluerette"
 whirlpool = "Whirlpool"
 yo_yo = "Yo-Yo"
-tack_rush = "Tack Rush" # Unused
+tack_rush = "Tack Rush"  # Unused
 altrise = "Altrise"
 headhunt = "Head Hunt"
 smash = "Smash"
 eintraf = "Eintraf"
 zweitraf = "Zweitraf"
 dreitraf = "Dreitraf"
-trafia = "Trafia"
+trafia = "Trafia"  # Unused
 whipper = "Whipper"
 nettle = "Nettle"
 spike = "Spike"
@@ -31,7 +31,7 @@ silpheed = "Silpheed"
 biting = "Biting"
 vjorum = "Vjorum"
 
-#Shots
+# Shots
 throw_dagger = "Throw Dagger"
 twin_shot = "Twin Shot"
 stamp = "Stamp"
@@ -52,21 +52,21 @@ tornado = "Tornado"
 seven_way = "7 Way"
 grand_blaze = "Grand Blaze"
 
-#Charges
+# Charges
 lock_shot = "Lock Shot"
 lightning = "Lightning"
 nova = "Nova"
-force_bit = "Force Bit" # Unused
-graviton = "Graviton" # Unused
+force_bit = "Force Bit"  # Unused
+graviton = "Graviton"  # Unused
 solomon = "Solomon"
 howling = "Howling"
 stgb = "S.T.G.B."
 
-#Customs
+# Customs
 b_commander = "B-Commander"
 s_commander = "S-Commander"
 c_quick = "C-Quick"
-s_combarta = "S-Combarta" # Unused
+s_combarta = "S-Combarta"  # Unused
 auto_repair = "Auto-Repair"
 free_vernier = "Free Vernier"
 b_mastery = "B-Mastery"
@@ -83,7 +83,7 @@ floater = "Floater"
 virus_transform = "Virus Transform"
 applica = "A-Applica"
 
-#Stat Ups
+# Stat Ups
 small_life = "Life Max Up 50"
 med_life = "Life Max Up 100"
 large_life = "Life Max Up 200"
@@ -91,6 +91,6 @@ small_energy = "Energy Max Up 50"
 med_energy = "Energy Max Up 100"
 large_energy = "Energy Max Up 200"
 
-#Stage Unlocks
+# Stage Unlocks
 unlock_7b = "Stage 7B Unlocked"
 unlock_10b = "Stage 10B Unlocked"

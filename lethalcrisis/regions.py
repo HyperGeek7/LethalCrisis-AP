@@ -76,6 +76,7 @@ def create_all_regions(world: LethalCrisisWorld) -> None:
 
     world.multiworld.regions += regions
 
+
 def connect_regions(world: LethalCrisisWorld) -> None:
     intermission = world.get_region("Intermission")
 
@@ -88,9 +89,7 @@ def connect_regions(world: LethalCrisisWorld) -> None:
 
     for stage_num in range(2, 9):
         _ = intermission.connect(
-            world.get_region(f"Stage {stage_num}"),
-            f"Start Stage {stage_num}",
-            Has(f"Stage {stage_num - 1}-D Clear")
+            world.get_region(f"Stage {stage_num}"), f"Start Stage {stage_num}", Has(f"Stage {stage_num - 1}-D Clear")
         )
 
     # Stage 9 is special. Maybe.
@@ -99,48 +98,32 @@ def connect_regions(world: LethalCrisisWorld) -> None:
     # leave the requirement in logic regardless.
     stage9 = world.get_region("Stage 9")
     _ = intermission.connect(
-        stage9,
-        "Start Stage 9",
-        HasAll("Stage 8-D Clear", *(f"Stage {stage}-C Clear" for stage in range(1,9)))
+        stage9, "Start Stage 9", HasAll("Stage 8-D Clear", *(f"Stage {stage}-C Clear" for stage in range(1, 9)))
     )
 
     for stage_num in range(10, 16):
         _ = intermission.connect(
-            world.get_region(f"Stage {stage_num}"),
-            f"Start Stage {stage_num}",
-            Has(f"Stage {stage_num - 1}-D Clear")
+            world.get_region(f"Stage {stage_num}"), f"Start Stage {stage_num}", Has(f"Stage {stage_num - 1}-D Clear")
         )
 
     # TODO: This should really be an option.
     # You can *technically* do stage 16 without Applica, and, indeed, this is required for
     # the S rank. But I don't want the rando to expect me to get any of the other ranks without
     # her as backup, so I'm making her required.
-    _ = intermission.connect(
-        world.get_region(f"Stage 16"),
-        "Start Stage 16",
-        HasAll("Stage 15-D Clear", names.applica)
-    )
+    _ = intermission.connect(world.get_region(f"Stage 16"), "Start Stage 16", HasAll("Stage 15-D Clear", names.applica))
 
     # 7B and 10B are oddballs in that they require specific items in addition all "normal" D-ranks.
-    normal_d_ranks = [f"Stage {stage_num}-D Clear" for stage_num in range(1,17)]
+    normal_d_ranks = [f"Stage {stage_num}-D Clear" for stage_num in range(1, 17)]
 
     stage7B = world.get_region("Stage 7B")
     _ = intermission.connect(
-        stage7B,
-        "Start Stage 7B",
-        HasAll(*normal_d_ranks) & HasAny(names.unlock_7b, names.unlock_10b)
+        stage7B, "Start Stage 7B", HasAll(*normal_d_ranks) & HasAny(names.unlock_7b, names.unlock_10b)
     )
 
     stage10B = world.get_region("Stage 10B")
-    _ = intermission.connect(
-        stage10B,
-        "Start Stage 10B",
-        HasAll(names.unlock_7b, names.unlock_10b, *normal_d_ranks)
-    )
+    _ = intermission.connect(stage10B, "Start Stage 10B", HasAll(names.unlock_7b, names.unlock_10b, *normal_d_ranks))
 
     for stage_num in range(11, 18):
         _ = intermission.connect(
-            world.get_region(f"Stage {stage_num}B"),
-            f"Start Stage {stage_num}B",
-            Has(f"Stage {stage_num - 1}B-D Clear")
+            world.get_region(f"Stage {stage_num}B"), f"Start Stage {stage_num}B", Has(f"Stage {stage_num - 1}B-D Clear")
         )
