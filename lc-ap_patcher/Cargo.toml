@@ -5,10 +5,8 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.104"
-blowfish = "0.9.1"
 byteorder = "1.5.0"
 clap = { version = "4.4.7", features = ["derive"] }
 crc = "3.0.1"
-encoding_rs = "0.8.33"
 walkdir = "2.5.0"
 zip = "8.6.0"
