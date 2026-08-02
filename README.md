@@ -3,8 +3,9 @@ A very early stab at implementing a Lethal Crisis APWorld. This has been tested 
 
 **This is early in development. It's fully playable, but be prepared to cheat in stage or item unlocks if you get stuck. Report any problems you run into in the Issues tab of the repo.**
 
-This repo is actually three repos in a trenchcoat:
+This repo is actually four repos in a trenchcoat:
 - `patch_files` contains the modified lua files that must be injected into Lethal Crisis to let it talk to the AP client.
+- `patch_file_encryptor` contains a small program that preps the patch files for injection.
 - `lc-ap_patcher` contains the source for the installer that actually injects those files.
 - `lethalcrisis` contains the apworld itself.
 
@@ -12,12 +13,9 @@ This repo is actually three repos in a trenchcoat:
 - **Back up your save files if you want to keep them.** These are in the `save` folder under your Lethal Crisis install. The AP patch cannot differentiate between "normal" save files and ones associated with an AP game, and it will bork your save data if you accidentally load it.
     - In addition, an issue with Lethal Crisis's Steam implementation means that verifying game files also blasts your saves. This patch makes a backup such that you shouldn't _need_ to do this to get back to a vanilla install, but it's an easy mistake to make if you're running on autopilot.
 - If you intend to install the English patch and haven't done it already, do that first. The AP patch can be applied on top of the English patch, but the English patch cannot be applied on top of the AP patch.
-- You will need to download 3 files from the latest release:
-    - `lethalcrisis.apworld`, which should be installed to Archipelago as usual.
-    - `ap_patch_files.lczip`, which should be placed in your Lethal Crisis folder next to `Lethal Crisis.exe` and `Lethal Crisis.p`. **Leave this zipped, do not extract it.**
-    - Either `lc-ap_patcher-x86_64-windows.exe` or `lc-ap_patcher-x86_64-linux`, depending on your OS, which should also be placed in your Lethal Crisis folder next to `ap_patch_files.lczip`.
-- If you're running the Steam release of LC, you should just need to run the patcher (`lc-ap_patcher-x86_64-windows.exe` or `lc-ap_patcher-x86_64-linux`). If you're using one of the Japanese releases, drag `リーサルクライシス.p` onto the patcher.
-    - If you're running a non-Steam release on Linux, this fallback might not launch the patcher properly. In that case, you'll need to launch the patcher from the terminal, passing in the `.p` file as an argument, i.e. `./lc-ap_patcher-x86_64-linux リーサルクライシス.p`.
+- Grab `lethal-crisis-ap.zip` from the releases page.
+- Extract the zip into your Lethal Crisis directory. I.e. `lc-ap_patcher.exe`, `ap_patch_files.lczip`, and the `lua` folder should be sitting directly next to `Lethal Crisis.exe` in the game's directory.
+- If you're running the Steam release of LC, you should just need to run the patcher. If you're using one of the Japanese releases, drag `リーサルクライシス.p` onto the patcher.
 - Assuming the patcher runs successfully, you are ready to play!
 
 ## Playing
