@@ -1,12 +1,11 @@
 [package]
-name = "lc-ap_patcher"
+name = "patch_file_encryptor"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 anyhow = "1.0.104"
+blowfish = "0.10.0"
 byteorder = "1.5.0"
-clap = { version = "4.4.7", features = ["derive"] }
-crc = "3.0.1"
+clap = { version = "4.6.5", features = ["derive"] }
 walkdir = "2.5.0"
-zip = "8.6.0"

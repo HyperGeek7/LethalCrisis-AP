@@ -1,8 +1,6 @@
 use anyhow::{Result, bail};
-use blowfish::{Blowfish, BlowfishLE, cipher::KeyInit};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use clap::Parser;
-use encoding_rs::SHIFT_JIS;
 use std::fs::remove_dir_all;
 use std::io;
 use std::path::MAIN_SEPARATOR_STR;
@@ -44,8 +42,6 @@ struct Args {
 }
 
 fn unpack_file(
-    blowfish_decryptor: &Blowfish<LittleEndian>,
-    pack_file: &mut File,
     toc_entries: &Vec<TocEntry>,
     output_dir: &Path,
 ) -> Result<()> {
@@ -53,20 +49,11 @@ fn unpack_file(
     builder.recursive(true);
 
     for toc_entry in toc_entries {
-        let mut decrypted_content =
-            toc_entry.load_decrypted_file_data(pack_file, blowfish_decryptor);
-
-        let mut file_name_path = Path::new(&toc_entry.file_name);
-        let modified_file_name = toc_entry.file_name.replace('\\', MAIN_SEPARATOR_STR);
+        let file_name = String::from_utf8_lossy(&toc_entry.file_name).to_string();
+        let mut file_name_path = Path::new(&file_name);
+        let modified_file_name = file_name.replace('\\', MAIN_SEPARATOR_STR);
         if MAIN_SEPARATOR != '\\' {
             file_name_path = Path::new(&modified_file_name);
-        }
-        if let Some(file_extension) = file_name_path.extension()
-            && file_extension.to_str().unwrap() == "TXT"
-        {
-            let (shift_jis_content, _encoding_used, _had_errors) =
-                SHIFT_JIS.decode(decrypted_content.as_slice());
-            decrypted_content = Vec::from(shift_jis_content.as_bytes());
         }
 
         let mut full_path = output_dir.to_path_buf();
@@ -76,17 +63,16 @@ fn unpack_file(
             .parent()
             .unwrap_or_else(|| panic!("File path {} should have a parent.", full_path.display()));
         builder.create(dir_path).expect("Couldn't create directory");
-        write(&full_path, &decrypted_content).expect("Couldn't write file.");
+        write(&full_path, &toc_entry.file_content).expect("Couldn't write file.");
     }
 
     Ok(())
 }
 
 fn pack_file(
-    blowfish_encryptor: &Blowfish<LittleEndian>,
     source_dir: &Path,
     output_file: &PathBuf,
-) {
+) -> Result<()> {
     let mut pack_body: Vec<u8> = Vec::new();
     let mut toc_entries: Vec<TocEntry> = Vec::new();
 
@@ -103,36 +89,17 @@ fn pack_file(
             .to_string_lossy()
             .replace(MAIN_SEPARATOR_STR, "\\");
 
-        while !pack_body.len().is_multiple_of(0x100) {
-            pack_body.push(0u8);
-        }
+        let next_size = pack_body.len().div_ceil(0x100) * 0x100;
+        pack_body.resize(next_size, 0u8);
 
-        let mut target_file_content =
-            read(&path).unwrap_or_else(|_| panic!("Unable to read file {}.", &path.display()));
-        if let Some(file_extension) = path.extension()
-            && file_extension.to_str().unwrap() == "TXT"
-        {
-            let content_string = String::from_utf8(target_file_content).unwrap();
-            let (encoded_file_content, _encoding_used, _had_errors) =
-                SHIFT_JIS.encode(content_string.as_str());
-            target_file_content = encoded_file_content.to_vec();
-        }
-        let mut encrypted_file_content = target_file_content.clone();
-        if !path
-            .extension()
-            .unwrap_or_default()
-            .eq_ignore_ascii_case("MPG")
-        {
-            encrypted_file_content =
-                TocEntry::encrypt_file_data(&mut target_file_content, blowfish_encryptor);
-        }
+        let target_file_content = read(&path)?;
 
         toc_entries.push(TocEntry::new(
-            &local_path,
-            &encrypted_file_content,
+            local_path.as_bytes(),
+            &target_file_content,
             pack_body.len(),
         ));
-        pack_body.extend(encrypted_file_content.iter());
+        pack_body.extend(target_file_content.iter());
     }
 
     let orig_toc_size = (toc_entries.len() * 0x50) + 8;
@@ -144,25 +111,23 @@ fn pack_file(
         toc_entry.start_offset += final_toc_size as u32;
     }
 
-    let mut final_file = File::create(output_file).unwrap();
-    final_file.write_all("PACK".as_bytes()).unwrap();
-    final_file
-        .write_u32::<LittleEndian>(toc_entries.len() as u32)
-        .unwrap();
+    let mut final_file = File::create(output_file)?;
+    final_file.write_all("PACK".as_bytes())?;
+    final_file.write_u32::<LittleEndian>(toc_entries.len() as u32)?;
 
     for toc_entry in toc_entries.iter() {
-        toc_entry.write_entry_to_file(&mut final_file);
+        toc_entry.write_entry_to_file(&mut final_file)?;
     }
 
-    final_file.write_all(&pad_vector).unwrap();
-    final_file.write_all(&pack_body).unwrap();
-    final_file.flush().unwrap();
+    final_file.write_all(&pad_vector)?;
+    final_file.write_all(&pack_body)?;
+    final_file.flush()?;
+
+    Ok(())
 }
 
 fn patch_file() -> Result<()> {
     let args = Args::parse();
-    let key: &[u8; 56] = include_bytes!("LC.key");
-    let json_lua = include_str!("json.lua");
     let dir_builder = DirBuilder::new();
 
     // Let's do some sanity checks first...
@@ -175,16 +140,6 @@ fn patch_file() -> Result<()> {
     }
 
     let lc_root = p_file_path.parent().unwrap();
-    let mut json_lib = lc_root.join("lua");
-    println!("Checking for json.lua...");
-    if !json_lib.exists() {
-        dir_builder.create(&json_lib)?;
-    }
-    json_lib.push("json.lua");
-    if !json_lib.exists() {
-        println!("Installing json.lua...");
-        write(json_lib, json_lua)?;
-    }
 
     let patch_zip = lc_root.join("ap_patch_files.lczip");
     if !patch_zip.exists() {
@@ -219,31 +174,11 @@ fn patch_file() -> Result<()> {
     let item_count = pack_file_handle.read_u32::<LittleEndian>()?;
 
     for _i in 0..item_count {
-        toc_entries.push(TocEntry::from_pack_file(&mut pack_file_handle));
+        toc_entries.push(TocEntry::from_pack_file(&mut pack_file_handle)?);
     }
-
-    let blowfish = BlowfishLE::new_from_slice(key).unwrap();
 
     println!("Unpacking file...");
-    unpack_file(&blowfish, &mut pack_file_handle, &toc_entries, &unpack_dir)?;
-
-    // One last sanity check. If the version string doesn't match, odds are good the decrypt failed.
-    const EXPECTED_VERSION: &str = "1,2010,04,20,22,24,06";
-    let version_file = unpack_dir.join("VERSION.TXT");
-    if !version_file.exists() {
-        bail!("Unpack step did not produce a valid VERSION.TXT file.");
-    }
-    if !args.skip_version_check {
-        let version_data = read(version_file)?;
-        let version_str = str::from_utf8(&version_data)?.trim();
-        if version_str != EXPECTED_VERSION {
-            bail!(
-                "Got an unexpected version in VERSION.TXT! Expected {}, got {}",
-                EXPECTED_VERSION,
-                version_str
-            );
-        }
-    }
+    unpack_file(&toc_entries, &unpack_dir)?;
 
     // Alright, let's party.
     println!("Ok, everything looks clean. Patching...");
@@ -256,7 +191,7 @@ fn patch_file() -> Result<()> {
     patch_zip_archive.extract(&unpack_dir)?;
 
     println!("Repacking file...");
-    pack_file(&blowfish, &unpack_dir, p_file_path);
+    pack_file(&unpack_dir, p_file_path)?;
 
     println!("Cleaning up...");
     remove_dir_all(unpack_dir)?;
@@ -278,8 +213,7 @@ fn main() -> Result<()> {
 
     println!("Press enter to exit.");
     let mut dummy = String::new();
-    let _ = io::stdin().read_line(&mut dummy);
-    println!("{}", dummy);
+    io::stdin().read_line(&mut dummy)?;
 
     patch_result
 }

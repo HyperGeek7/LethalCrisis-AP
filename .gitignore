@@ -1,3 +1,4 @@
 pack_files
 **/__pycache__
 lc-ap_patcher/target/**
+patch_file_encryptor/target/**

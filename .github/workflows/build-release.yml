@@ -1,0 +1,66 @@
+name: "Build Release"
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+    build_lczip:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - name: Set up Rust
+              uses: dtolnay/rust-toolchain@stable
+            - name: Encrypt patch files
+              run: |
+                cd patch_file_encryptor
+                cargo run -r -- --input-dir ../patch_files --output-dir ../encrypted_patch_files
+            - name: Build lczip
+              run: |
+                cd encrypted_patch_files
+                zip -r ../ap_patch_files.lczip *
+            - uses: actions/upload-artifact@v4
+              with:
+                name: ap_patch_files.lczip
+                path: ap_patch_files.lczip
+                archive: false
+  
+    build_windows_patcher:
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v6
+            - name: Build executable
+              run: |
+                cd lc-ap_patcher
+                cargo build -r
+            - uses: actions/upload-artifact@v7
+              with:
+                name: lc-ap_patcher.exe
+                path: lc-ap_patcher/target/release/lc-ap_patcher.exe
+                archive: false
+
+    create_release:
+      runs-on: ubuntu-latest
+      needs: [build_lczip, build_windows_patcher]
+      steps:
+        - name: Fetch artifacts
+          uses: actions/download-artifact@v8
+          with:
+            path: lc-ap_patcher
+            merge-multiple: true
+        - name: Grab json.lua
+          run: |
+            mkdir -p lc-ap_patcher/lua
+            curl -Lo lc-ap_patcher/lua/json.lua https://raw.githubusercontent.com/rxi/json.lua/refs/heads/master/json.lua
+        - name: Zip up release package
+          run: |
+            cd lc-ap_patcher
+            zip -r ../lethal-crisis-ap.zip *
+        - uses: softprops/action-gh-release@v3
+          with:
+            files: |
+              lethal-crisis-ap.zip

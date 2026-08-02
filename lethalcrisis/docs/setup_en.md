@@ -2,10 +2,9 @@
 
 ## Required Software
 - [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases/latest)
-- [The Lethal Crisis APWorld](https://github.com/hypergeek7/LethalCrisis-AP/releases/download/latest/lethalcrisis.apworld)
-- [Lethal Crisis AP Patcher](https://github.com/hypergeek7/LethalCrisis-AP/releases/download/latest/lc-ap_patcher-x86_64-windows.exe)
-- [Lethal Crisis AP Patch Files](https://github.com/hypergeek7/LethalCrisis-AP/releases/download/latest/ap_patch_files.lczip)
-    - Do _not_ extract the patch files. The patcher operates on the full `lczip` file.
+- [The Lethal Crisis APWorld](https://github.com/hypergeek7/LethalCrisis-AP/releases/latest/download/lethalcrisis.apworld)
+- [Lethal Crisis AP Patch](https://github.com/HyperGeek7/LethalCrisis-AP/releases/latest/download/lethal-crisis-ap.zip)
+
 
 ## Optional Files
 - [English Patch](https://zeltraslabs.com/LethalCrisis/LethalCrisisEnglish.v1.0.zip)
@@ -17,7 +16,7 @@ These instructions assume you're using the Steam release of Lethal Crisis on Win
 - **Back up your save files if you want to keep them.** These are in the `save` folder under your Lethal Crisis install. The AP patch cannot differentiate between "normal" save files and ones associated with an AP game, and it will bork your save data if you accidentally load it.
     - In addition, an issue with Lethal Crisis's Steam implementation means that verifying game files also blasts your saves. This patch makes a backup such that you shouldn't _need_ to do this to get back to a vanilla install, but it's an easy mistake to make if you're running on autopilot.
 - If you intend to install the English patch and haven't done it already, do that first. The AP patch can be applied on top of the English patch, but the English patch cannot be applied on top of the AP patch.
-- Place `lc-ap_patcher-x86_64-windows.exe` and `ap_patch_files.lczip` in your Lethal Crisis install, next to `Lethal Crisis.exe`.
+- Extract the patch zip into your Lethal Crisis directory. I.e. `lc-ap_patcher.exe`, `ap_patch_files.lczip`, and the `lua` folder should be sitting directly next to `Lethal Crisis.exe` in the game's directory.
 - If you're running the Steam release of Lethal Crisis, you should just need to double-click `lc-ap_patcher-x86_64-windows.exe` and let it work.
     - If you're using a release with Japanese filenames, drag `リーサルクライシス.p` onto `lc-ap_patcher-x86_64-windows.exe` instead.
 - The patcher should churn for a few seconds and then tell you the patch was successfully installed. If so, you are ready to create a multiworld and play!
