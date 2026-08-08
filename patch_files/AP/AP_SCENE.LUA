@@ -1,21 +1,16 @@
+INDICATOR_LAYER = 11
+
 function ap_OnStart()
-    if AP_DEBUG then io.write("AP_OnStart called\n") end
+    debug_write("AP_OnStart called")
     AP_TCP = TCP:new()
-    -- The socket code weirdly doesn't execute the whole connection routine
-    -- if you use an ip address instead of a hostname.
-    -- This might be some kind of very intentional c stuff I'm too
-    -- python to understand.
     AP_TCP:connect("localhost", 9292)
     AP_CONNECTED = false
-    -- This function is in the copy of the AIMS documentation I have,
-    -- but apparently it's not in this version of the AIMS engine.
-    --setSceneIgnoreExclusive(true)
-    if AP_DEBUG then io.write("AP_OnStart end\n") end
+    debug_write("AP_OnStart end")
 end
 
 function ap_OnStep()
-    if getSceneUptime() % 60 ~= 0 then
-        return
+    if not A.ap_indicator or not isAlive(A.ap_indicator) then
+        A.ap_indicator = createActor(G.AP_Disconnected, 640 - 16, 480 - 16, INDICATOR_LAYER, "apIndicator");
     end
 
     if not save or save.Lastmessage == nil then
@@ -23,9 +18,13 @@ function ap_OnStep()
         return
     end
 
+    if getSceneUptime() % 60 ~= 0 then
+        return
+    end
+
     local msgs = {}
     if not AP_CONNECTED then
-        if AP_DEBUG then io.write("AP not connected, sending hello\n") end
+        debug_write("AP not connected, sending hello")
         local hello_msg = {type = "hello"}
         msgs = do_ap_transmission(hello_msg)
     else
@@ -58,9 +57,6 @@ function ap_OnStep()
     -- those stages at will with no lockout. Since getting locked out would be a BAD_THING
     -- for a rando, we dynamically set the flag tracking which endings you've gotten so
     -- it always thinks you have free access to them.
-    -- This *might* result in 10B-17B all being accessible at once, haven't tested it yet,
-    -- but I that's an acceptable sacrifice until I finally bite the bullet and get a working
-    -- decomp of INTERMISSION.LUA into place so I can mod it.
     if save.Clearstage < 10 then
         save.Cleargame = 0
     elseif save.Clearstage <= 17 then
@@ -71,6 +67,6 @@ function ap_OnStep()
 end
 
 function ap_OnClose()
-    io.write("AP_OnClose called")
+    debug_write("AP_OnClose called")
     AP_TCP:closeSocket()
 end
